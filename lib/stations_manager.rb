@@ -41,18 +41,6 @@ require "uuid"
 #   },
 # ]
   
-# class Listener
-#   def self.load(listener_stations_data="listener_stations.json");end
-#   def self.create_station_for(listener_id, keyword); end
-#   def initialize(listener_id, keyword); end
-#   def listener_id;end
-#   def stations; end
-#   def recent_stations; end
-#   def station_for(keyword); end
-#   def has_station_for?(keyword);end
-#   def to_json;end
-# end
-
 class StationsManager
   attr_reader :stations
   
@@ -63,17 +51,20 @@ class StationsManager
   end
   
   def initialize
-    @stations_store = StationsJsonStore.new
+    @stations_store = StationsJsonStore.new(File.join(Dir.getwd, 'data/stations.json'))
+    @listeners_store = StationsJsonStore.new(File.join(Dir.getwd, 'data/listeners.json'))
   end
   
   def load
     @stations = @stations_store.load_json
+    @listeners = @listeners_store.load_json
+  end
+  
+  def station_for(listener_id, keyword)
   end
   
   def remove_stations(*ids)
-    ids.flatten.each do |id| 
-      @stations.delete(id)
-    end
+    ids.flatten.each do |id| @stations.delete(id) end
     @stations_store.save_json(@stations)
   end
   
@@ -81,10 +72,43 @@ class StationsManager
     stations.flatten.each { |station| @stations[station.id] = station }
     @stations_store.save_json(@stations)
   end
+  
+  def remove_listeners(*ids)
+    ids.flatten.each do |id| @stations.delete(id) end
+    @stations_store.save_json(@stations)
+  end
+  
+  def append_listeners(*listeners)
+    stations.flatten.each { |station| @stations[station.id] = station }
+    @stations_store.save_json(@stations)
+  end
+end
+
+class Listener
+  attr_reader :id, :stations
+  def self.build(listener_id, all_stations)
+  end
+  
+  def initialize(listener_id)
+    @id, @stations = listener_id, []
+  end
+  
+  def add_station(keyword)
+    station = Station.build(keyword)
+    @stations << station
+  end
+  
+  def recent_stations; end
+  def has_station_for?(keyword)
+    
+  end
+  def to_json
+    {'id' => id, 'stations' => stations}
+  end
 end
 
 class Station
-  attr_reader :id, :keyword, :sent_programmes, :created_at
+  attr_reader :id, :keyword, :created_at
   
   def self.build(keyword)
     Station.new(UUID.generate, keyword, [], Time.now.utc)
@@ -96,7 +120,9 @@ class Station
   
   def seed_station_with_programmes; end
   def programmes_queue; end
-  def sent_programmes; [] end # [{:date_requested => date_time, :uri => uri, :theme_id => theme_id}]
+  def sent_programmes # [{:date_requested => date_time, :uri => uri, :theme_id => theme_id}]
+    @sent_programmes
+  end 
   def feedback_for(uri, rating); end
   def reactivation_date; end # this is updated with the last datetime the subscription was requested by a listener
   def next_programme; end
@@ -104,8 +130,6 @@ class Station
     {'id' => id, 'keyword' => keyword, 'sent_programmes' => sent_programmes, 'created_at' => created_at.to_json}.to_json
   end
 end
-
-# @listener_stations = [Listener.create_station_for(FAKE_LISTENER_ID, "media")]
 
 class StationsJsonStore
   def initialize(store_path='stations.json')
@@ -120,10 +144,36 @@ class StationsJsonStore
     end
     
     json_data = JSON.load(json)
-    loaded_stations = json_data.inject({}) do |loaded_stations, raw_record|
+    stations = json_data.inject({}) do |loaded_stations, raw_record|
       record = JSON.parse(raw_record)
       station = Station.new(record['id'], record['keyword'], record['sent_programmes'], Time.parse(record['created_at']).utc)
       loaded_stations.update(station.id => station)
+    end
+  end
+  
+  def save_json(stations)
+    json = stations.map { |(id, station)| station.to_json }.to_json
+    File.open(@store_path, 'w') { |f| f.write(json) }
+  end
+end
+
+class ListenersJsonStore
+  def initialize(store_path='listeners.json')
+    @store_path = store_path
+  end
+  
+  def load_json
+    json = begin
+      File.read(@store_path)
+    rescue Errno::ENOENT
+      '{}'
+    end
+    
+    json_data = JSON.load(json)
+    listeners = json_data.inject({}) do |loaded_listeners, raw_record|
+      record = JSON.parse(raw_record)
+      station = Station.new(record['id'], record['keyword'], record['sent_programmes'], Time.parse(record['created_at']).utc)
+      loaded_listeners.update(station.id => station)
     end
   end
   

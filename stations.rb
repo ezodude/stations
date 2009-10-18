@@ -2,7 +2,7 @@ require 'rubygems'
 require 'sinatra'
 require "json"
 
-FAKE_LISTENER_ID = '49b64290-97fb-012c-8919-0016cbb691d0'
+FAKE_LISTENER_ID = '33dcbcd0-902a-012c-8914-0016cbb691d0'
 FAKE_STATION_ID = 'station123'
 
 before do
