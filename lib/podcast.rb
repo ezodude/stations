@@ -3,13 +3,21 @@ require 'uuid'
 require 'active_support'
 
 class Podcast
+  MIN_MINUTES_DURATION = 9
+  
   attr_reader :id, :audio_uri, :title, :participants, :summary, :duration, :source_uri, :tags, :published_at
   attr_reader :file_size, :created_at, :updated_at
   
   def self.build(audio_uri, title, participants, summary, duration, source_uri, tags, published_at, file_size)
     raise RuntimeError.new("Audio Uri is blank.") if audio_uri.nil? || audio_uri == ""
     raise RuntimeError.new("Incorrect Audio Uri format for [#{audio_uri}], can only accept .mp3 formats.") if File.extname(audio_uri) != ".mp3"
+    
     raise RuntimeError.new("Title is blank.") if title.nil? || title == ""
+    
+    raise RuntimeError.new("A duration has not been provided.") if duration.nil?
+    if duration < MIN_MINUTES_DURATION
+      raise RuntimeError.new("A duration has been provided lower than the minimum threshold of #{MIN_MINUTES_DURATION} minutes.")
+    end
     
     creation_date = Time.now.utc
     Podcast.new(UUID.generate, audio_uri, title, participants, summary, duration, source_uri, tags, \

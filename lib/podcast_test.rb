@@ -10,7 +10,7 @@ class PodcastTest < Test::Unit::TestCase
   TITLE = "Science Weekly: Apollo 11 special"
   PARTICIPANTS = ['Alok Jha', 'Andy Duckworth']
   SUMMARY = "&lt;p&gt;In exactly two weeks, Nasa will celebrate&lt;/p&gt;"
-  DURATION = 2278  #seconds
+  DURATION = 10  #minutes
   SOURCE_URI = "http://www.guardian.co.uk/science/audio/2009/jul/06/apollo-11-moon-landing-astronomy-science-podcast"
   TAGS = ['apollo_11', 'space_exploration', 'science', 'space_technology', 'technology', 'guardian.co.uk', 'editorial']
   PUBLISHED_AT = FAKE_TIME.rfc822 # extracted from format based on http://asg.web.cmu.edu/rfc/rfc822.html
@@ -65,5 +65,14 @@ class PodcastTest < Test::Unit::TestCase
   def test_throws_exception_when_created_with_blank_title
     assert_raises(RuntimeError) { Podcast.build(AUDIO_URI, nil, PARTICIPANTS, SUMMARY, DURATION, SOURCE_URI, TAGS, PUBLISHED_AT, FILE_SIZE) }
     assert_raises(RuntimeError) { Podcast.build(AUDIO_URI, '', PARTICIPANTS, SUMMARY, DURATION, SOURCE_URI, TAGS, PUBLISHED_AT, FILE_SIZE) }
+  end
+  
+  def test_throws_exception_when_created_with_blank_duration
+    assert_raises(RuntimeError) { Podcast.build(AUDIO_URI, TITLE, PARTICIPANTS, SUMMARY, nil, SOURCE_URI, TAGS, PUBLISHED_AT, FILE_SIZE) }
+    assert_raises(RuntimeError) { Podcast.build(AUDIO_URI, TITLE, PARTICIPANTS, SUMMARY, 0, SOURCE_URI, TAGS, PUBLISHED_AT, FILE_SIZE) }
+  end
+  
+  def test_throws_exception_when_created_with_duration_less_than_9_minutes
+    assert_raises(RuntimeError) { Podcast.build(AUDIO_URI, TITLE, PARTICIPANTS, SUMMARY, 8, SOURCE_URI, TAGS, PUBLISHED_AT, FILE_SIZE) }
   end
 end
