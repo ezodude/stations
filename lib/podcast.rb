@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require 'json'
 require 'uuid'
 require 'active_support'
