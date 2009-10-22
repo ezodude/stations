@@ -70,7 +70,7 @@ class PodcastCollector
       feed_keywords = collect_any_keywords_from(feed)
       
       candidates = feed.entries.delete_if{ |entry| entry.audio_uri.nil? }
-  	  @collected_podcasts = candidates.inject([]) do |collection, entry|
+  	  @collected_podcasts += candidates.inject([]) do |collection, entry|
   	    participants = tagify(entry.author.nil? ? [] : entry.author.split(/,/))
   	    tags = tagify(feed_keywords + collect_any_keywords_from(entry) + participants).uniq
   	    duration_in_minutes = determine_duration_from(entry)
