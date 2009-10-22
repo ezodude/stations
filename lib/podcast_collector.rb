@@ -2,6 +2,8 @@
 
 require 'feedzirra'
 require 'activesupport'
+require 'podcast'
+require 'podcast_data_extractor_utils'
 
 module SaidFm
   class PodcastRSSEntry
@@ -50,6 +52,8 @@ end
 Feedzirra::Feed.add_feed_class(SaidFm::PodcastRSS)
 
 class PodcastCollector
+  include SaidFm::PodcastDataExtractorUtils
+  
   SECONDS_IN_MINUTE = 60
   attr_reader :collected_podcasts
   
@@ -62,10 +66,10 @@ class PodcastCollector
     @feed_uris.each do |uri|
       feed = Feedzirra::Feed.fetch_and_parse(uri)
 
-      feed_keywords = grab_any_feed_tags(feed)
+      feed_keywords = collect_any_keywords_from(feed)
   	  @collected_podcasts = feed.entries.inject([]) do |collection, entry|
   	    participants = tagify(entry.author.nil? ? [] : entry.author.split(/,/))
-  	    tags = tagify(feed_keywords + grab_any_entry_tags(entry) + participants).uniq
+  	    tags = tagify(feed_keywords + collect_any_keywords_from(entry) + participants).uniq
   	    duration_in_minutes = determine_duration_from(entry)
   	    
   	    if duration_in_minutes >= Podcast::MIN_MINUTES_DURATION
@@ -75,37 +79,5 @@ class PodcastCollector
     	  collection
   	  end
     end
-  end
-
-private
-  
-  def grab_any_feed_tags(feed)
-    keywords = []
-    keywords = feed.itunes_keywords.split(/,/).flatten unless feed.itunes_keywords.nil?
-    keywords.collect {|keyword| keyword.underscore}
-  end
-  
-  def grab_any_entry_tags(entry)
-    keywords = []
-    keywords = entry.categories.split(/,/).flatten unless entry.categories.nil?
-    keywords = entry.itunes_keywords.split(/,/).flatten unless entry.itunes_keywords.nil?
-    keywords.collect {|keyword| keyword.underscore }
-  end
-    
-  def tagify(values=[])
-    values.collect do |value|
-      value.gsub!('.', '_')
-      if value.include?(' ')
-        value.split(' ').collect{|w| w.capitalize}.join.underscore
-      else
-        value.underscore
-      end
-    end
-  end
-  
-  def determine_duration_from(entry)
-    return Time.parse(entry.itunes_duration).min unless entry.itunes_duration.nil?
-    return (entry.media_duration.to_i / SECONDS_IN_MINUTE) unless entry.media_duration.nil?
-    return 0
   end
 end
