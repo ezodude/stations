@@ -16,7 +16,7 @@ class PodcastCollectorTest < Test::Unit::TestCase
   end
   
   def test_collects_keywords_from_itunes_keywords
-    keyword_holder = flexmock('entry', :categories => nil, :itunes_keywords => 'personalTechnology,privacy')
+    keyword_holder = flexmock('entry', :categories => nil, :itunes_keywords => 'personalTechnology,,privacy')
     assert_equal(['personalTechnology', 'privacy'], @testee.collect_any_keywords_from(keyword_holder))
   end
   
@@ -39,14 +39,24 @@ class PodcastCollectorTest < Test::Unit::TestCase
     assert_equal(expected, @testee.tagify(values))
   end
   
-  def test_determines_duration_in_minutes_from_hh_mm_ss_format
+  def test_determines_duration_in_minutes_from_hh_mm_ss_format_when_no_hours_available
     entry = flexmock('entry', :itunes_duration => '00:31:21', :media_duration => nil)
     assert_equal(31, @testee.determine_duration_from(entry))
+  end
+  
+  def test_determines_duration_in_minutes_from_hh_mm_ss_format_when_hours_are_available
+    entry = flexmock('entry', :itunes_duration => '1:31:21', :media_duration => nil)
+    assert_equal(91, @testee.determine_duration_from(entry))
   end
   
   def test_determines_duration_in_minutes_from_mm_ss_format
     entry = flexmock('entry', :itunes_duration => '31:21', :media_duration => nil)
     assert_equal(31, @testee.determine_duration_from(entry))
+  end
+  
+  def test_determines_duration_in_minutes_from_mm_ss_format_when_minutes_exceed_60
+    entry = flexmock('entry', :itunes_duration => '63:21', :media_duration => nil)
+    assert_equal(63, @testee.determine_duration_from(entry))
   end
   
   def test_determines_duration_in_minutes_from_seconds_based_duration
