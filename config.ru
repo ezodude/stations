@@ -1,3 +1,3 @@
-require "stations_engine"
+require "stations"
 
 run Sinatra::Application
