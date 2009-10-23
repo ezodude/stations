@@ -1,9 +1,15 @@
+$:.unshift File.join(File.dirname(__FILE__), "config")
+$:.unshift File.join(File.dirname(__FILE__), "lib/podbase")
+
 require 'rubygems'
 require 'sinatra'
-require "json"
 
 FAKE_LISTENER_ID = '33dcbcd0-902a-012c-8914-0016cbb691d0'
 FAKE_STATION_ID = 'station123'
+
+configure do
+  require "#{File.dirname(__FILE__)}/config/initialise"
+end
 
 before do
   # class ThemeMapping

@@ -1,10 +1,5 @@
 # encoding: utf-8
 
-require 'feedzirra'
-require 'activesupport'
-require 'podcast'
-require 'podcast_data_extractor_utils'
-
 module SaidFm
   class PodcastRSSEntry
     include SAXMachine
@@ -61,24 +56,31 @@ class PodcastCollector
   
   def initialize(feed_uris=[])
     @feed_uris = feed_uris
-    @collected_podcasts = []
+    @collected_podcasts = {}
   end
   
   def collect_podcasts
-    @feed_uris.each do |uri|
-      feed = Feedzirra::Feed.fetch_and_parse(uri)
+    @feed_uris.each do |feed_uri|
+      @collected_podcasts[feed_uri] = []
+      
+      feed = Feedzirra::Feed.fetch_and_parse(feed_uri)
       feed_keywords = collect_any_keywords_from(feed)
       
       candidates = feed.entries.delete_if{ |entry| entry.audio_uri.nil? }
-  	  @collected_podcasts += candidates.inject([]) do |collection, entry|
+  	  @collected_podcasts[feed_uri] += candidates.inject([]) do |collection, entry|
   	    participants = tagify(entry.author.nil? ? [] : entry.author.split(/,/))
   	    tags = tagify(feed_keywords + collect_any_keywords_from(entry) + participants).uniq
   	    duration_in_minutes = determine_duration_from(entry)
   	    
   	    if duration_in_minutes >= Podcast::MIN_MINUTES_DURATION
   	      begin
-      	    collection << Podcast.build(entry.audio_uri, entry.title, entry.summary.strip, duration_in_minutes, entry.url, \
-      	                      tags, entry.published, entry.audio_size.to_i)
+  	        if Podcast.first(:audio_uri => entry.audio_uri).nil?
+    	        podcast = Podcast.build_with(entry.audio_uri, entry.title, entry.summary.strip, duration_in_minutes, entry.url, \
+        	                      tags, entry.published, entry.audio_size.to_i)
+              raise RuntimeError.new("Could not save collected podcast,errors #{podcast.errors.inspect}") unless podcast.save
+      	    
+        	    collection << podcast
+        	  end
       	  rescue RuntimeError => e
       	    puts "Feed url: [#{feed.feed_url}], podcast audio uri: [#{entry.audio_uri}] \nException: [#{e.message}]"
     	    end

@@ -1,9 +1,7 @@
 # encoding: utf-8
-$:.unshift File.join(File.dirname(__FILE__), "../..", "lib/podbase")
 
 require "test/unit"
 require 'flexmock/test_unit'
-require 'podcast_data_extractor_utils'
 
 class PodcastCollectorTest < Test::Unit::TestCase
   def setup
