@@ -77,7 +77,7 @@ class PodcastCollector
   	    
   	    if duration_in_minutes >= Podcast::MIN_MINUTES_DURATION
   	      begin
-      	    collection << Podcast.build(entry.audio_uri, entry.title, participants, entry.summary.strip, duration_in_minutes, entry.url, \
+      	    collection << Podcast.build(entry.audio_uri, entry.title, entry.summary.strip, duration_in_minutes, entry.url, \
       	                      tags, entry.published, entry.audio_size.to_i)
       	  rescue RuntimeError => e
       	    puts "Feed url: [#{feed.feed_url}], podcast audio uri: [#{entry.audio_uri}] \nException: [#{e.message}]"
