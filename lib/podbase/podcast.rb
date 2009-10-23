@@ -2,7 +2,7 @@
 
 require 'json'
 require 'uuid'
-require 'active_support'
+require 'activesupport'
 
 class Podcast
   MIN_MINUTES_DURATION = 9
