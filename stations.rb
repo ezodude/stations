@@ -109,7 +109,7 @@ end
 
 get '/listeners/:listener_id/station.:format' do
   content_type :json
-  if params[:listener_id] == FAKE_LISTENER_ID && params[:keyword] == 'some-interest'
+  if params[:keyword] == 'some-interest'
     fake_station
   else
     status(404)
@@ -118,7 +118,7 @@ get '/listeners/:listener_id/station.:format' do
 end
 
 get '/listeners/:listener_id/stations/:station_id.:format' do
-  if params[:listener_id] == FAKE_LISTENER_ID && params[:station_id] == FAKE_STATION_ID
+  if params[:station_id] == FAKE_STATION_ID
     fake_station 
   else
     status(404)
@@ -127,7 +127,7 @@ get '/listeners/:listener_id/stations/:station_id.:format' do
 end
 
 post '/listeners/:listener_id/stations.:format' do
-  if params[:listener_id] == FAKE_LISTENER_ID && params[:keyword] == 'some-interest'
+  if params[:keyword] == 'some-interest'
     status(201)
     response['Location'] = "#{base_url}listeners/#{FAKE_LISTENER_ID}/stations/#{FAKE_STATION_ID}"
   else
@@ -137,7 +137,7 @@ post '/listeners/:listener_id/stations.:format' do
 end
 
 get '/listeners/:listener_id/stations/:station_id/new_programme.:format' do
-  if params[:listener_id] == FAKE_LISTENER_ID && params[:station_id] == FAKE_STATION_ID
+  if params[:station_id] == FAKE_STATION_ID
     fake_programme
   else
     status(404)
