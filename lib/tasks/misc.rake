@@ -3,7 +3,7 @@ task :default => [:init_test_env] do
   ENV['RUNNING_CONTEXT'] = 'development'
 end
 
-namespace :said_fm do
+namespace :saidfm do
   task :collect_programmes => [:init_env] do
     collector = PodcastCollector.new(FEEDS)
     collector.collect_podcasts

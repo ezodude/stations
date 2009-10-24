@@ -30,7 +30,7 @@ class Podcast
     
     creation_date = Time.now.utc
     obj = Podcast.new(:id => UUID.generate, :audio_uri => audio_uri, :title => title, :summary => summary, 
-                  :duration => duration, :source_uri => source_uri, :published_at => Time.parse(published_at).utc, 
+                  :duration => duration, :source_uri => source_uri, :published_at => published_at.utc, 
                   :file_size => file_size, :created_at => creation_date, :updated_at => creation_date)
     tags.each do |candidate_tag|
       obj.classifications << Classification.build_with(candidate_tag)

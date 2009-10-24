@@ -13,8 +13,8 @@ class PodcastTest < Test::Unit::TestCase
   DURATION = 10  #minutes
   SOURCE_URI = "http://www.guardian.co.uk/science/audio/2009/jul/06/apollo-11-moon-landing-astronomy-science-podcast"
   TAGS = ['apollo_11', 'space_exploration', 'science', 'space_technology', 'technology', 'guardian_co_uk', 'alok_jha', 'andy_duckworth']
-  PUBLISHED_AT = FAKE_TIME.rfc822 # extracted from format based on http://asg.web.cmu.edu/rfc/rfc822.html
-  PARSED_PUBLISHED_AT = Time.parse(PUBLISHED_AT).utc
+  PUBLISHED_AT = FAKE_TIME
+  # PARSED_PUBLISHED_AT = Time.parse(PUBLISHED_AT).utc
   FILE_SIZE = 36523268
   
   def setup
@@ -27,7 +27,7 @@ class PodcastTest < Test::Unit::TestCase
       :summary => SUMMARY,
       :duration => DURATION,
       :source_uri => SOURCE_URI,
-      :published_at => PARSED_PUBLISHED_AT,
+      :published_at => PUBLISHED_AT,
       :file_size => FILE_SIZE,
       :created_at => FAKE_TIME,
       :updated_at =>FAKE_TIME

@@ -9,6 +9,7 @@ class PodcastCollectorTest < Test::Unit::TestCase
   
   FEED_URI = 'http://rss.conversationsnetwork.org/series/technation.xml'
   PODCAST_PUBLISHED_DATE = 'Thu, 10 Oct 2009 00:00:00 CDT'
+  PARSED_PODCAST_PUBLISHED_DATE = Time.parse(PODCAST_PUBLISHED_DATE).utc
   
   def test_does_not_collect_podcasts_with_a_missing_duration_field
     setup_mocks
@@ -69,7 +70,7 @@ class PodcastCollectorTest < Test::Unit::TestCase
       flexmock(Feedzirra::Feed, :decode_content => expected_feed_xml)
       expected_tags = ['it','information_technology', 'technation', 'science', 'technology', 'personal_technology','privacy']
       expected_duration = 31
-      expected_podcast = Podcast.build_with('http://cdn.conversationsnetwork.org/ITC.TN-BellGemmell-2009.09.22.mp3', 'Gordon Bell, Jim Gemmell - Total Recall', %Q(Moira talks with Gorden Bell and Jim Gemmell about what it means to digitally record everything in our lives. The authors of Total Recall: How the E-Memory Revolution Will Change Everything discuss how new technologies allow average people to record their entire lives.), expected_duration, 'http://itc.conversationsnetwork.org/shows/detail4249.html', expected_tags, PODCAST_PUBLISHED_DATE, 15286592)
+      expected_podcast = Podcast.build_with('http://cdn.conversationsnetwork.org/ITC.TN-BellGemmell-2009.09.22.mp3', 'Gordon Bell, Jim Gemmell - Total Recall', %Q(Moira talks with Gorden Bell and Jim Gemmell about what it means to digitally record everything in our lives. The authors of Total Recall: How the E-Memory Revolution Will Change Everything discuss how new technologies allow average people to record their entire lives.), expected_duration, 'http://itc.conversationsnetwork.org/shows/detail4249.html', expected_tags, PARSED_PODCAST_PUBLISHED_DATE, 15286592)
 
       testee = PodcastCollector.new([FEED_URI])
       testee.collect_podcasts
@@ -133,7 +134,7 @@ class PodcastCollectorTest < Test::Unit::TestCase
       expected_tags = ['science']
       expected_duration = (784/60)
       expected_podcast = Podcast.build_with('http://download.guardian.co.uk/audio/kip/science/series/science/1249655385631/8643/gdn.sci.090810.ad.Science-Weekly-podcast.mp3', %Q(Science Weekly podcast: Backing up the Earth's biodiversity), %Q(&lt;p&gt;&lt;strong&gt;Cary Fowler&lt;/strong&gt; from the &lt;a href="http://www.croptrust.org/main/"&gt;Global Crop Diversity Trust&lt;/a&gt; discusses his plans to develop a global system for &lt;a href="http://www.guardian.co.uk/media/pda/2009/jul/22/climate-change-agriculture"&gt;conserving the biodiversity of all agricultural crops&lt;/a&gt;, which would include installing giant freezers inside a mountain at the North Pole. &lt;/p&gt;&lt;p&gt;In the newsjam, we look at plans for &lt;a href="http://www.guardian.co.uk/uk/video/2009/aug/04/adonis-high-speed-rail"&gt;high-speed rail in the UK&lt;/a&gt;, the &lt;a href="http://www.guardian.co.uk/science/blog/2009/aug/04/population-climate-change-birth-rates"&gt;carbon footprint of babies&lt;/a&gt;, what triggers &lt;a href="http://www.guardian.co.uk/science/blog/2009/aug/05/gecko-grip-adhesion-gravity"&gt;geckos' famous grip&lt;/a&gt;, and why &lt;a href="http://www.guardian.co.uk/environment/2009/aug/05/affordable-beekeeping-beehaus"&gt;beekeeping is becoming the latest craze&lt;/a&gt;. &lt;/p&gt;&lt;p&gt;Tents, scruffy people, mud, primitive latrines ... and quantum physics? A group called &lt;a href="http://www.guerillascience.co.uk"&gt;Guerilla Science&lt;/a&gt; has been pitching both its tent – and a scientific message. &lt;strong&gt;Frank Swain&lt;/strong&gt; reports from the Latitude festival as the scientists got down and dirty with the revellers.     &lt;/p&gt;&lt;p&gt;The Guardian's Science Book Club has been tackling &lt;a href="http://www.guardian.co.uk/science/2009/jul/30/stephen-hawking-brief-history-time"&gt;Stephen Hawking's A Brief History of Time&lt;/a&gt;. Our literary guru &lt;strong&gt;Tim Radford&lt;/strong&gt; kicked off proceedings and stirred up a hornet's nest by suggesting that one of the ingredients for the book's phenomenal success might be Hawking's boast that he was trying to "understand the mind of god". &lt;/p&gt;&lt;p&gt;Post your comments about this programme on the blog below.&lt;/p&gt;&lt;p&gt;Join our &lt;a href="http://www.facebook.com/group.php?gid=2261841960"&gt;Facebook group&lt;/a&gt;. &lt;/p&gt;&lt;p&gt;Listen back through &lt;a href="http://www.guardian.co.uk/scienceweekly"&gt;our archive&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;Follow us on &lt;a href="http://twitter.com/guardianscience"&gt;our Twitter feed&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;Subscribe free &lt;a href="http://phobos.apple.com/WebObjects/MZStore.woa/wa/viewPodcast?id=136697669"&gt;via iTunes&lt;/a&gt; to ensure every episode gets delivered. (Here is the &lt;a href="http://www.guardian.co.uk/science/series/science/rss"&gt;non-iTunes URL feed&lt;/a&gt;).&lt;/p&gt;&lt;div class="author"&gt;&lt;a href="http://www.guardian.co.uk/profile/alokjha"&gt;Alok Jha&lt;/a&gt;&lt;/div&gt;&lt;div class="author"&gt;&lt;a href="http://www.guardian.co.uk/profile/andyduckworth"&gt;Andy Duckworth&lt;/a&gt;&lt;/div&gt;&lt;div class="author"&gt;&lt;a href="http://www.guardian.co.uk/profile/jamesranderson"&gt;James Randerson&lt;/a&gt;&lt;/div&gt;&lt;div class="author"&gt;&lt;a href="http://www.guardian.co.uk/profile/jameskingsland"&gt;James Kingsland&lt;/a&gt;&lt;/div&gt;&lt;br/&gt;&lt;p style="clear:both" /&gt;), expected_duration, 
-      'http://www.guardian.co.uk/science/audio/2009/aug/10/science-weekly-podcast-seeds-biodiversity', expected_tags, PODCAST_PUBLISHED_DATE, 12611407)
+      'http://www.guardian.co.uk/science/audio/2009/aug/10/science-weekly-podcast-seeds-biodiversity', expected_tags, PARSED_PODCAST_PUBLISHED_DATE, 12611407)
     
       testee = PodcastCollector.new([FEED_URI])
       testee.collect_podcasts
@@ -173,7 +174,7 @@ class PodcastCollectorTest < Test::Unit::TestCase
       expected_tags = ['science', 'alok_jha', 'andy_duckworth', 'james_randerson', 'james_kingsland']
       expected_duration = (784/60)
       expected_podcast = Podcast.build_with('http://download.guardian.co.uk/audio/kip/science/series/science/1249655385631/8643/gdn.sci.090810.ad.Science-Weekly-podcast.mp3', %Q(Science Weekly podcast: Backing up the Earth's biodiversity), %Q(interesting description), expected_duration, 
-      'http://www.guardian.co.uk/science/audio/2009/aug/10/science-weekly-podcast-seeds-biodiversity', expected_tags, PODCAST_PUBLISHED_DATE, 12611407)
+      'http://www.guardian.co.uk/science/audio/2009/aug/10/science-weekly-podcast-seeds-biodiversity', expected_tags, PARSED_PODCAST_PUBLISHED_DATE, 12611407)
     
       testee = PodcastCollector.new([FEED_URI])
       testee.collect_podcasts
