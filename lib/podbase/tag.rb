@@ -3,8 +3,8 @@
 class Tag
   include DataMapper::Resource
   
-  property :id, String, :key => true, :unique => true
-  property :title, String, :nullable => false, :unique => true
+  property :id, String, :length => 200, :key => true, :unique => true
+  property :title, String, :length => 200, :nullable => false, :unique => true
   property :created_at, Time
   property :updated_at, Time
   

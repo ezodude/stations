@@ -12,4 +12,6 @@ require 'podcast'
 require 'tag'
 require 'classification'
 
-DataMapper.auto_migrate!
+Podcast.auto_migrate! unless Podcast.storage_exists?
+Tag.auto_migrate! unless Tag.storage_exists?
+Classification.auto_migrate! unless Classification.storage_exists?

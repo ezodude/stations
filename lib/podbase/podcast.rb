@@ -4,7 +4,7 @@ class Podcast
   include DataMapper::Resource
   MIN_MINUTES_DURATION = 9
   
-  property :id, String, :key => true, :unique => true
+  property :id, String, :length => 200, :key => true, :unique => true
   property :audio_uri, Text, :nullable => false, :unique => true
   property :title, Text, :nullable => false
   property :summary, Text
