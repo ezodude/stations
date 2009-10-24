@@ -9,6 +9,7 @@ FAKE_STATION_ID = 'station123'
 
 configure do
   # require "#{File.dirname(__FILE__)}/config/initialise"
+  require 'json'
 end
 
 before do
