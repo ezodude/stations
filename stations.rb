@@ -93,7 +93,7 @@ helpers do
   def fake_programme
     {
       "title" => "The Story",
-      "audio_uri" => "http://localhost:3000/sample_programme/test.mp3",
+      "audio_uri" => "http://cdn.conversationsnetwork.org/ITC.ETech-TimOReilly-2008.03.03.mp3",
       "themes" => "theme1,theme2,theme3"
     }.to_json
   end
