@@ -10,7 +10,7 @@ class Classification
   belongs_to :podcast
   belongs_to :tag
   
-  before :save, do
+  before :save do
     if self.tag.new?
       raise RuntimeError.new("Classification could not be created for tag [#{self.tag}]") unless self.tag.save
     end
