@@ -11,7 +11,7 @@ class Classification
   belongs_to :tag
   
   before :save do
-    if self.tag.new?
+    if self.tag.new_record?
       raise RuntimeError.new("Classification could not be created for tag [#{self.tag}]") unless self.tag.save
     end
   end
