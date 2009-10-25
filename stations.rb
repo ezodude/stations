@@ -45,7 +45,7 @@ get '/listeners/:listener_id/station.:format' do
     fake_station
   else
     status(404)
-    @msg = 'No station matching keyword.'
+    @msg = 'Unknown listener or No station matching keyword.'
   end
 end
 
