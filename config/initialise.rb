@@ -6,6 +6,7 @@ require 'feedzirra'
 require 'datamapper_config'
 require 'podcast_data_extractor_utils'
 require 'podcast_collector'
+require 'programmes_catalogue'
 require 'builder'
 require 'uuid'
 

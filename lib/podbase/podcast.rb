@@ -5,11 +5,11 @@ class Podcast
   MIN_MINUTES_DURATION = 9
   
   property :id, String, :length => 200, :key => true, :unique => true
-  property :audio_uri, Text, :nullable => false, :unique => true
-  property :title, Text, :nullable => false
+  property :audio_uri, Text, :nullable => false, :unique => true, :lazy => false
+  property :title, Text, :nullable => false, :lazy => false
   property :summary, Text
   property :duration, Integer, :nullable => false
-  property :source_uri, Text
+  property :source_uri, Text, :lazy => false
   property :published_at, Time
   property :file_size, Integer
   property :created_at, Time
@@ -42,5 +42,10 @@ class Podcast
     other.id == id && other.audio_uri == audio_uri && other.title == title \
       && other.summary == summary && other.duration == duration && other.source_uri == source_uri \
       && other.published_at == published_at && other.file_size == file_size
+  end
+  
+  def to_json
+    flattened_tags = tags.collect{|t| t.to_s}.join(',')
+    {'id' => id, 'audio_uri' => audio_uri, 'title' => title, 'summary' => summary, 'tags' => flattened_tags}.to_json
   end
 end

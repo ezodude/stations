@@ -14,4 +14,8 @@ class Tag
   def self.build_with(tag_title)
     self.new(:id => UUID.generate, :title => tag_title)
   end
+  
+  def to_s
+    "#{id}::#{title}"
+  end
 end
