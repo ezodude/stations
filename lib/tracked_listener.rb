@@ -4,8 +4,7 @@ class TrackedListener
   include DataMapper::Resource
   
   property :id, String, :length => 200, :key => true, :unique => true
-  property :created_at, Time
-  property :updated_at, Time
+  timestamps :at
   
   has n, :stations
   
@@ -15,6 +14,8 @@ class TrackedListener
   end
   
   def self.track_with_station(listener_id, keyword)
+    raise RuntimeError.new("There is no progamme content available for [#{keyword}].") unless ProgrammesCatalogue.related_tag_for_keyword(keyword)
+    
     obj = self.get(listener_id)
     obj = obj.blank? ? self.new(:id => listener_id) : obj
     
@@ -30,8 +31,16 @@ class TrackedListener
     Station.first(:conditions => ['tracked_listener_id = ? and tracked_keyword = ?', self.id, keyword])
   end
   
-  # def recent_stations
-  #   # last 3 stations
-  # end
-  # 
+  def change_current_station_to(candidate)
+    candidate.update_attributes(:is_current_station => true) and return if current_station.nil?
+    return if current_station == candidate
+    
+    if current_station.update_attributes(:is_current_station => false)
+      candidate.update_attributes(:is_current_station => true)
+    end
+  end
+  
+  def current_station
+    Station.first(:conditions => ['tracked_listener_id = ? and is_current_station = ?', self.id, true])
+  end
 end

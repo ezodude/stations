@@ -19,6 +19,8 @@ class TrackedListenerTest < Test::Unit::TestCase
     db_cleanup
     
     flexmock(UUID, :generate => 'station-id')
+    flexmock(ProgrammesCatalogue, :related_tag_for_keyword => { 'id' => 'tag-id', 'title' => 'title' }.to_json)
+    
     testee = TrackedListener.track_with_station('listener-id', 'keyword')
     
     assert_equal(1, testee.stations.size)
@@ -27,10 +29,20 @@ class TrackedListenerTest < Test::Unit::TestCase
     assert_equal('keyword', testee.stations.first.tracked_keyword)
   end
   
+  def test_throws_an_exception_when_there_is_no_available_programme_content_for_keyword
+    db_cleanup
+    
+    flexmock(UUID, :generate => 'station-id')
+    flexmock(ProgrammesCatalogue, :related_tag_for_keyword => nil)
+    
+    assert_raise(RuntimeError) { testee = TrackedListener.track_with_station('listener-id', 'keyword')  }
+  end
+  
   def test_does_not_track_an_already_tracked_listener_but_adds_new_station_for_keyword
     db_cleanup
     
     flexmock(UUID, :generate => 'station-id')
+    flexmock(ProgrammesCatalogue, :related_tag_for_keyword => { 'id' => 'tag-id', 'title' => 'title' }.to_json)
     
     TrackedListener.create(:id => 'listener-id')
     assert_equal(1, TrackedListener.all.size)
@@ -48,6 +60,7 @@ class TrackedListenerTest < Test::Unit::TestCase
     db_cleanup
     
     flexmock(UUID, :generate => 'station-id')
+    flexmock(ProgrammesCatalogue, :related_tag_for_keyword => { 'id' => 'tag-id', 'title' => 'title' }.to_json)
     
     listener = TrackedListener.create(:id => 'listener-id')
     listener.stations << Station.create(:id => 'listener-id', :tracked_keyword => 'keyword')
@@ -75,7 +88,7 @@ class TrackedListenerTest < Test::Unit::TestCase
 private
 
   def db_cleanup
-    Station.all.each { |s| s.destroy }
-    TrackedListener.all.each { |s| s.destroy  }
+    Station.all.each { |i| i.destroy }
+    TrackedListener.all.each { |i| i.destroy  }
   end
 end

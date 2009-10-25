@@ -41,17 +41,20 @@ end
 
 get '/listeners/:listener_id/station.:format' do
   content_type :json
-  if params[:keyword] == 'some-interest'
-    fake_station
+  if TrackedListener.has_listener_with_station?(params[:listener_id], params[:keyword])
+    station = TrackedListener.get(params[:listener_id]).station_for(params[:keyword])
+    station.to_json
   else
     status(404)
-    @msg = 'Unknown listener or No station matching keyword.'
+    @msg = 'Listener not yet tracked or no station matching keyword.'
   end
 end
 
 get '/listeners/:listener_id/stations/:station_id.:format' do
-  if params[:station_id] == FAKE_STATION_ID
-    fake_station 
+  content_type :json
+  station = Station.first(:id => params[:station_id], listener_id => params[:listener_id])
+  if station
+    station.json
   else
     status(404)
     @msg = 'No station matching this station id.'
@@ -59,10 +62,12 @@ get '/listeners/:listener_id/stations/:station_id.:format' do
 end
 
 post '/listeners/:listener_id/stations.:format' do
-  if params[:keyword] == 'some-interest'
+  begin
+    listener = TrackedListener.track_with_station(params[:listener_id], params[:keyword])
     status(201)
-    response['Location'] = "#{base_url}listeners/#{FAKE_LISTENER_ID}/stations/#{FAKE_STATION_ID}"
-  else
+    response['Location'] = "#{base_url}listeners/#{listener.id}/stations/#{listener.station_for(params[:keyword]).id}"
+  rescue Exception => e
+    puts e
     status(412)
     @msg = 'Could not process this request.'
   end
