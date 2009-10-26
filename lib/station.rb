@@ -3,6 +3,8 @@
 class Station
   include DataMapper::Resource
   
+  MAX_FOR_NEW_TAG_EXTRACTION = 5
+  
   property :id, String, :length => 200, :key => true, :unique => true
   property :tracked_keyword, String, :length => 200
   property :tag_from_previous_collection, String, :length => 200
@@ -17,39 +19,48 @@ class Station
     self.attribute_set(:id, UUID.generate) if self.id.blank? 
   end
   
-  def seed_station_with_programmes
-    if !station_was_started
-      tag_for_keyword = JSON.parse(ProgrammesCatalogue.related_tag_for_keyword(tracked_keyword))
-      programmes_as_json = JSON.parse(ProgrammesCatalogue.programmes_for_tag(tag_for_keyword['id']))
-      programmes_as_json.each do |programme_as_json|
-        BroadcastableProgramme.build_with(programme_as_json).save
-      end
-      attribute_set(:tag_from_previous_collection, tag_for_keyword['id']) unless programmes_queue.empty?
+  def seed_station_with_programmes(new_tag_id=nil)
+    seed_tag_id = !station_was_started ? JSON.parse(ProgrammesCatalogue.related_tag_for_keyword(tracked_keyword))['id'] : new_tag_id
+    
+    programmes_as_json = JSON.parse(ProgrammesCatalogue.programmes_for_tag(seed_tag_id))
+    programmes_as_json.each do |programme_as_json|
+      BroadcastableProgramme.build_with(self, programme_as_json).save
     end
-      
-    # Create BroadcastableProgrammes that pending_broadcast == true
-    # return true if seeding was successful
-    # return false if seeding was unsuccessful
+    self.update_attributes(:tag_from_previous_collection => seed_tag_id) unless programmes_queue.empty?
   end
   
   def programmes_queue
-    BroadcastableProgramme.all(:pending_broadcast.eql => true, :order => [:created_at.asc])
+    BroadcastableProgramme.queued_pending_broadcasts_for(self)
   end
   
   def next_programme
-    self.attribute_set(:station_was_started, true) unless  self.station_was_started
+    self.update_attributes(:station_was_started => true) unless self.station_was_started
+    self.tracked_listener.change_current_station_to(self) 
     
-    result = programmes_queue.first
-    result.update_attributes(:pending_broadcast => false)
-    result
-    # tracked_listener.change_current_station_to(self)
-    #Get next from programmes_queue
-    # if nothing, then seed_station_with_programmes
-    #   on success, Get next from programmes_queue
-    #   on failure, return nil
+    if programmes_queue.empty?
+      new_tag_id = calculate_next_tag_id_for_station
+      return nil unless new_tag_id
+      seed_station_with_programmes(new_tag_id)
+    end
+    new_programme = programmes_queue.first
+    new_programme.update_attributes(:pending_broadcast => false)
+    new_programme
   end
   
   def to_json
     {"id" => self.id, "keyword" => self.keyword, "listener_id" => self.tracked_listener }.to_json
+  end
+  
+private
+
+  def calculate_next_tag_id_for_station
+    number_of_brodcasted_programmes = BroadcastableProgramme.number_of_broadcasted_programmes_for(self)
+    random_selector = number_of_brodcasted_programmes > MAX_FOR_NEW_TAG_EXTRACTION ? MAX_FOR_NEW_TAG_EXTRACTION : number_of_brodcasted_programmes
+    5.times do
+      tag_source = BroadcastableProgramme.broadcasted_programmes_for(self)[rand(random_selector)]
+      new_tag_id = tag_source.get_tag_id_other_than(self.tag_from_previous_collection)
+      return new_tag_id unless new_tag_id.nil? 
+    end
+    nil
   end
 end

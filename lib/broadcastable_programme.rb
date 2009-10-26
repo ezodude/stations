@@ -14,15 +14,26 @@ class BroadcastableProgramme
   
   belongs_to :station
   
-  def self.build_with(jsonified_programme)
+  def self.build_with(station, jsonified_programme)
     parsed_programme = JSON.parse(jsonified_programme)
-    self.new(:prog_id => parsed_programme['id'], :prog_audio_uri => parsed_programme['audio_uri'], 
+    self.new(:station => station, :prog_id => parsed_programme['id'], :prog_audio_uri => parsed_programme['audio_uri'], 
               :prog_title => parsed_programme['title'], :prog_summary => parsed_programme['summary'], :prog_tags => parsed_programme['tags'])
   end
   
-  def ==(other)
-    other.prog_id == prog_id && other.prog_audio_uri == prog_audio_uri \
-      && other.prog_title == prog_title && other.prog_summary == prog_summary \
-      && other.prog_tags == prog_tags && other.pending_broadcast == pending_broadcast
+  def self.queued_pending_broadcasts_for(station)
+    BroadcastableProgramme.all(:station_id.eql => station.id, :pending_broadcast.eql => true, :order => [:created_at.asc])
+  end
+  
+  def self.broadcasted_programmes_for(station)
+    BroadcastableProgramme.all(:station_id.eql => station.id, :pending_broadcast.eql => false, :order => [:updated_at.desc])
+  end
+  
+  def self.number_of_broadcasted_programmes_for(station)
+    BroadcastableProgramme.count(:station_id.eql => station.id, :pending_broadcast.eql => false)
+  end
+  
+  def get_tag_id_other_than(tag_id)
+    tag_pairs = prog_tags.split(/,/).collect{|tag_pair| tag_pair if !tag_pair.include?(tag_id)}.compact
+    tag_pairs.empty? ? nil : tag_pairs[rand(tag_pairs.size)].split('::')[0]
   end
 end
