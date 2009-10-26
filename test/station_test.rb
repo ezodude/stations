@@ -89,6 +89,15 @@ class StationTest < Test::Unit::TestCase
     expected_attr_values = ['id2', 'http://www.audio.uri/2.mp3', 'title2', 'summary2', "tag2-id::tag2-title,tag3-id::tag3-title"]
     expected_attr_values.each { |e| assert(newly_seeded_programme.attributes.values.include?(e)) }
   end
+  
+  def test_jsonifies_itself
+    db_cleanup
+    listener = TrackedListener.create(:id => 'listener_id')
+    testee = Station.create(:tracked_keyword => 'some-keyword', :tracked_listener => listener)
+    
+    expected = {"id" => testee.id, "keyword" => testee.tracked_keyword, "listener_id" => testee.tracked_listener_id }.to_json
+    assert_equal(expected, testee.to_json)
+  end
 private
 
   def db_cleanup

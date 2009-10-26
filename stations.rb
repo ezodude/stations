@@ -41,8 +41,14 @@ end
 
 get '/listeners/:listener_id/station.:format' do
   content_type :json
-  if TrackedListener.has_listener_with_station?(params[:listener_id], params[:keyword])
-    station = TrackedListener.get(params[:listener_id]).station_for(params[:keyword])
+  trial = TrackedListener.has_listener_with_station?(params[:listener_id], params[:keyword])
+  p [:trial, trial]
+  
+  if trial
+    station = TrackedListener.get(params[:listener_id]).station_for_keyword(params[:keyword])
+    p [:station, station]
+    p [:station_to_json, station.to_json]
+    
     station.to_json
   else
     status(404)
@@ -52,9 +58,9 @@ end
 
 get '/listeners/:listener_id/stations/:station_id.:format' do
   content_type :json
-  station = Station.first(:id => params[:station_id], listener_id => params[:listener_id])
+  station = Station.first(:id => params[:station_id], :tracked_listener_id => params[:listener_id])
   if station
-    station.json
+    station.to_json
   else
     status(404)
     @msg = 'No station matching this station id.'
@@ -65,7 +71,7 @@ post '/listeners/:listener_id/stations.:format' do
   begin
     listener = TrackedListener.track_with_station(params[:listener_id], params[:keyword])
     status(201)
-    response['Location'] = "#{base_url}listeners/#{listener.id}/stations/#{listener.station_for(params[:keyword]).id}"
+    response['Location'] = "#{base_url}listeners/#{listener.id}/stations/#{listener.station_for_keyword(params[:keyword]).id}"
   rescue Exception => e
     puts e
     status(412)
@@ -75,16 +81,16 @@ end
 
 get '/listeners/:listener_id/stations/:station_id/new_programme.:format' do
   content_type :json
-  if station = Station.first(:id => params[:station_id], listener_id => params[:listener_id])
-    begin
+  if station = Station.first(:id => params[:station_id], :tracked_listener_id => params[:listener_id])
+    # begin
       station.seed_station_with_programmes unless station.station_was_started
-      next_programme = station.next_programme
-      raise RuntimeError.new('Ran out of programmes for this station.') if next_programme.nil?
-      next_programme.to_json
-    rescue Exception => e
-      status(412)
-      @msg = e.message
-    end
+      new_programme = station.next_programme
+      raise RuntimeError.new('Ran out of programmes for this station.') if new_programme.nil?
+      new_programme.to_json
+    # rescue Exception => e
+    #   status(412)
+    #   @msg = e.message
+    # end
   else
     status(404)
     @msg = 'No station matching this station id.'
