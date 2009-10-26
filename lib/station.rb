@@ -35,21 +35,15 @@ class Station
   end
   
   def next_programme
-    # p [:next_programme_calling, "I am in method: #{next_programme}"]
-    # 
     self.update_attributes(:station_was_started => true) unless self.station_was_started
     self.tracked_listener.change_current_station_to(self) 
     
-    p [:programmes_queue_empty, programmes_queue.empty?]
     if programmes_queue.empty?
-      p [:programmes_queue_empty_state, "I got it"]
       new_tag_id = calculate_next_tag_id_for_station
       return nil unless new_tag_id
       seed_station_with_programmes(new_tag_id)
     end
     new_programme = programmes_queue.first
-    p [:new_programme, new_programme]
-    
     new_programme.update_attributes(:pending_broadcast => false)
     new_programme
   end

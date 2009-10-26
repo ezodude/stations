@@ -9,15 +9,10 @@ class TrackedListener
   has n, :stations
   
   def self.has_listener_with_station?(listener_id, keyword)
-    p [:listener_id, listener_id]
-    p [:keyword, keyword]
-    
     unless listener = TrackedListener.get(listener_id)
-      p [:unless_listener, 'yes']
       return false
     end
     num_stations_found = Station.count(:conditions => ['tracked_listener_id = ? and tracked_keyword = ?', listener.id, keyword])
-    p [:num_stations_found, num_stations_found]
     num_stations_found > 0
   end
   

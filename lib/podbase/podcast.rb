@@ -46,7 +46,6 @@ class Podcast
   
   def to_json
     flattened_tags = tags.collect{|t| t.to_s}.join(',')
-    p [:flattened_tags, flattened_tags]
     {'id' => id, 'audio_uri' => audio_uri, 'title' => title, 'summary' => summary, 'tags' => flattened_tags}.to_json
   end
 end
