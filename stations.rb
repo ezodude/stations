@@ -82,15 +82,15 @@ end
 get '/listeners/:listener_id/stations/:station_id/new_programme.:format' do
   content_type :json
   if station = Station.first(:id => params[:station_id], :tracked_listener_id => params[:listener_id])
-    # begin
+    begin
       station.seed_station_with_programmes unless station.station_was_started
       new_programme = station.next_programme
       raise RuntimeError.new('Ran out of programmes for this station.') if new_programme.nil?
       new_programme.to_json
-    # rescue Exception => e
-    #   status(412)
-    #   @msg = e.message
-    # end
+    rescue Exception => e
+      status(412)
+      @msg = e.message
+    end
   else
     status(404)
     @msg = 'No station matching this station id.'
