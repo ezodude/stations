@@ -36,4 +36,8 @@ class BroadcastableProgramme
     tag_pairs = prog_tags.split(/,/).collect{|tag_pair| tag_pair if !tag_pair.include?(tag_id)}.compact
     tag_pairs.empty? ? nil : tag_pairs[rand(tag_pairs.size)].split('::')[0]
   end
+  
+  def to_json
+    {'audio_uri' => prog_audio_uri, 'title' => prog_title, 'summary' => prog_summary, 'tags' => prog_tags}.to_json
+  end
 end

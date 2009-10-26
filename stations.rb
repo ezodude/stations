@@ -74,8 +74,17 @@ post '/listeners/:listener_id/stations.:format' do
 end
 
 get '/listeners/:listener_id/stations/:station_id/new_programme.:format' do
-  if params[:station_id] == FAKE_STATION_ID
-    fake_programme
+  content_type :json
+  if station = Station.first(:id => params[:station_id], listener_id => params[:listener_id])
+    begin
+      station.seed_station_with_programmes unless station.station_was_started
+      next_programme = station.next_programme
+      raise RuntimeError.new('Ran out of programmes for this station.') if next_programme.nil?
+      next_programme.to_json
+    rescue Exception => e
+      status(412)
+      @msg = e.message
+    end
   else
     status(404)
     @msg = 'No station matching this station id.'
