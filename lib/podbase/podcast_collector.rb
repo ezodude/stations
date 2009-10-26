@@ -76,7 +76,8 @@ class PodcastCollector
   	      begin
   	        if Podcast.first(:audio_uri => entry.audio_uri).nil?
   	          published_at = entry.published.respond_to?(:utc) ? entry.published.utc : Time.parse(entry.published).utc
-    	        podcast = Podcast.build_with(entry.audio_uri, entry.title, entry.summary.strip, duration_in_minutes, entry.url, \
+  	          entry_summary = entry.summary.blank? ? entry.summary : entry.summary.strip
+    	        podcast = Podcast.build_with(entry.audio_uri, entry.title, entry_summary, duration_in_minutes, entry.url, \
         	                      tags, published_at, entry.audio_size.to_i)
               raise RuntimeError.new("Could not save collected podcast,errors #{podcast.errors.inspect}") unless podcast.save
       	    

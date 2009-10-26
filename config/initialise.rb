@@ -11,6 +11,11 @@ require 'builder'
 require 'uuid'
 
 FEEDS = [
+  "http://www.uie.com/brainsparks/feed/",
+  "http://www.nytimes.com/services/xml/rss/nyt/podcasts/techtalk.xml",
+  "http://www.nytimes.com/services/xml/rss/nyt/podcasts/musicreview.xml",
+  "http://www.gillespetersonworldwide.com/podcasts/gillespeterson.rss",
+  "http://www.nytimes.com/services/xml/rss/nyt/podcasts/scienceupdate.xml",
   "http://rss.conversationsnetwork.org/series/innovators.xml",
   "http://rss.conversationsnetwork.org/series/technation.xml",
   "http://rss.conversationsnetwork.org/series/technometria.xml",
