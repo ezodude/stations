@@ -74,7 +74,6 @@ class StationTest < Test::Unit::TestCase
       {'id' => 'id2', 'audio_uri' => 'http://www.audio.uri/2.mp3', 'title' => 'title2', 'summary' => 'summary2', 'tags' => "tag2-id::tag2-title,tag3-id::tag3-title"}.to_json
     ].to_json
     
-    # flexmock(ProgrammesCatalogue).should_receive(:programmes_for_tag).with(tag_id).returns(tag_programmes)
     flexmock(ProgrammesCatalogue).should_receive(:programmes_for_tag).returns(tag1_programmes, tag2_programmes)
     
     flexmock(Kernel).should_receive(:rand).with(5).returns(0)
