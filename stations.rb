@@ -97,6 +97,22 @@ get '/listeners/:listener_id/stations/:station_id/new_programme.:format' do
   end
 end
 
+get '/listeners/:listener_id/stations/:station_id/recent_programmes.:format' do
+  content_type :json
+  if station = Station.first(:id => params[:station_id], :tracked_listener_id => params[:listener_id])
+    begin
+      recent_programmes_jsonified = station.recent_programmes.collect {|recent_programme| recent_programme.to_json }
+      recent_programmes_jsonified.to_json
+    rescue Exception => e
+      status(412)
+      @msg = e.message
+    end
+  else
+    status(404)
+    @msg = 'No station matching this station id.'
+  end
+end
+
 not_found do
   status(404)
   @msg || "Said.fm doesn't know about that!\n"

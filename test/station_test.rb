@@ -98,6 +98,18 @@ class StationTest < Test::Unit::TestCase
     expected = {"id" => testee.id, "keyword" => testee.tracked_keyword, "listener_id" => testee.tracked_listener_id }.to_json
     assert_equal(expected, testee.to_json)
   end
+  
+  def test_retrieves_the_last_six_recent_programmes
+    db_cleanup
+    recent_programmes = [flexmock("prog1"), flexmock("prog2"), flexmock("prog3"), flexmock("prog4"), flexmock("prog5"), \
+                          flexmock("prog6"), flexmock("prog7")]
+    
+    listener = TrackedListener.create(:id => 'listener_id')
+    testee = Station.create(:tracked_keyword => 'some-keyword', :tracked_listener => listener)
+    flexmock(BroadcastableProgramme).should_receive(:broadcasted_programmes_for).with(testee).returns(recent_programmes)
+
+    assert_equal(recent_programmes.slice(0,6), testee.recent_programmes)
+  end
 private
 
   def db_cleanup

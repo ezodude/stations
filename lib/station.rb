@@ -48,6 +48,10 @@ class Station
     new_programme
   end
   
+  def recent_programmes
+    BroadcastableProgramme.broadcasted_programmes_for(self).slice(0, 6)
+  end
+  
   def to_json
     {"id" => self.id, "keyword" => self.tracked_keyword, "listener_id" => self.tracked_listener_id }.to_json
   end
