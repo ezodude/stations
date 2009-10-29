@@ -194,7 +194,7 @@ class PodcastCollectorTest < Test::Unit::TestCase
   end
 private
   def setup_mocks
-    flexmock(UUID, :generate => FAKE_PODCAST_ID)
+    flexmock(UUIDTools::UUID, :random_create => FAKE_PODCAST_ID)
     flexmock(Time, :now => FAKE_TIME)
     flexmock(Podcast).new_instances.should_receive(:save => true)
   end

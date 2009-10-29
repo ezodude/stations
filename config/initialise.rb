@@ -8,7 +8,7 @@ require 'podcast_data_extractor_utils'
 require 'podcast_collector'
 require 'programmes_catalogue'
 require 'builder'
-require 'uuid'
+require 'uuidtools'
 
 FEEDS = [
   "http://www.uie.com/brainsparks/feed/",

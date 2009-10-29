@@ -16,7 +16,7 @@ class Station
   has n, :broadcastable_programmes
   
   before :valid? do 
-    self.attribute_set(:id, UUID.generate) if self.id.blank? 
+    self.attribute_set(:id, UUIDTools::UUID.random_create) if self.id.blank? 
   end
   
   def seed_station_with_programmes(new_tag_id=nil)

@@ -18,7 +18,7 @@ class TrackedListenerTest < Test::Unit::TestCase
   def test_tracks_new_listener_while_adding_new_station_for_keyword
     db_cleanup
     
-    flexmock(UUID, :generate => 'station-id')
+    flexmock(UUIDTools::UUID, :random_create => 'station-id')
     flexmock(ProgrammesCatalogue, :related_tag_for_keyword => { 'id' => 'tag-id', 'title' => 'title' }.to_json)
     
     testee = TrackedListener.track_with_station('listener-id', 'keyword')
@@ -32,7 +32,7 @@ class TrackedListenerTest < Test::Unit::TestCase
   def test_throws_an_exception_when_there_is_no_available_programme_content_for_keyword
     db_cleanup
     
-    flexmock(UUID, :generate => 'station-id')
+    flexmock(UUIDTools::UUID, :random_create => 'station-id')
     flexmock(ProgrammesCatalogue, :related_tag_for_keyword => nil)
     
     assert_raise(RuntimeError) { testee = TrackedListener.track_with_station('listener-id', 'keyword')  }
@@ -41,7 +41,7 @@ class TrackedListenerTest < Test::Unit::TestCase
   def test_does_not_track_an_already_tracked_listener_but_adds_new_station_for_keyword
     db_cleanup
     
-    flexmock(UUID, :generate => 'station-id')
+    flexmock(UUIDTools::UUID, :random_create => 'station-id')
     flexmock(ProgrammesCatalogue, :related_tag_for_keyword => { 'id' => 'tag-id', 'title' => 'title' }.to_json)
     
     TrackedListener.create(:id => 'listener-id')
@@ -59,7 +59,7 @@ class TrackedListenerTest < Test::Unit::TestCase
   def test_throws_an_exception_when_tracked_users_stations_already_exists_for_keyword
     db_cleanup
     
-    flexmock(UUID, :generate => 'station-id')
+    flexmock(UUIDTools::UUID, :random_create => 'station-id')
     flexmock(ProgrammesCatalogue, :related_tag_for_keyword => { 'id' => 'tag-id', 'title' => 'title' }.to_json)
     
     listener = TrackedListener.create(:id => 'listener-id')
@@ -75,7 +75,7 @@ class TrackedListenerTest < Test::Unit::TestCase
   def test_retrieves_station_for_a_keyword
     db_cleanup
     
-    flexmock(UUID, :generate => 'station-id')
+    flexmock(UUIDTools::UUID, :random_create => 'station-id')
     
     new_station = Station.create(:id => 'listener-id', :tracked_keyword => 'keyword')
     testee = TrackedListener.create(:id => 'listener-id')

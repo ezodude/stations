@@ -59,7 +59,7 @@ class StationTest < Test::Unit::TestCase
   
   def test_seeds_more_programmes_using_random_programme_tag_from_last_5_broadcasted_programmes
     db_cleanup
-    flexmock(UUID, :generate => 'station-id')
+    flexmock(UUIDTools::UUID, :random_create => 'station-id')
     flexmock(ProgrammesCatalogue).should_receive(:related_tag_for_keyword) \
       .returns( \
         { 'id' => 'tag1-id', 'title' => 'tag1-title' }.to_json, \
@@ -119,7 +119,7 @@ private
   end
   
   def setup_mocks(station_id, prog_id, prog_audio_uri, prog_title, prog_summary, tag_id, tag_title)
-    flexmock(UUID, :generate => station_id)
+    flexmock(UUIDTools::UUID, :random_create => station_id)
     flexmock(ProgrammesCatalogue, :related_tag_for_keyword => { 'id' => tag_id, 'title' => tag_title }.to_json)
     
     tag_programmes = [ 

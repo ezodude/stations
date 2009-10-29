@@ -12,7 +12,7 @@ class Tag
   has n, :podcasts, :through => :classifications
   
   def self.build_with(tag_title)
-    self.new(:id => UUID.generate, :title => tag_title)
+    self.new(:id => UUIDTools::UUID.random_create, :title => tag_title)
   end
   
   def to_s
