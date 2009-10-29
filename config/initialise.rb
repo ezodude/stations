@@ -1,6 +1,6 @@
 require 'rubygems'
 require 'json'
-require 'uuid'
+require 'uuidtools'
 require 'activesupport'
 require 'feedzirra'
 require 'datamapper_config'
@@ -8,7 +8,6 @@ require 'podcast_data_extractor_utils'
 require 'podcast_collector'
 require 'programmes_catalogue'
 require 'builder'
-require 'uuidtools'
 
 FEEDS = [
   "http://www.uie.com/brainsparks/feed/",
