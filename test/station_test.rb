@@ -16,6 +16,21 @@ class StationTest < Test::Unit::TestCase
     assert_equal(BroadcastableProgramme.all(:pending_broadcast.eql => true), testee.programmes_queue)
   end
   
+  def test_adjusts_the_last_played_at_time_when_the_next_programme_is_requested
+    db_cleanup
+    
+    fake_time = Time.now.utc
+    flexmock(Time, :now => fake_time)
+    setup_mocks('station-id', 'some-id', 'http://www.audio.uri/1.mp3', 'title', 'summary', 'tag-id', 'tag-title')
+    
+    listener = TrackedListener.create(:id => 'listener_id')
+    testee = Station.create(:tracked_keyword => 'some-keyword', :tracked_listener => listener)
+    testee.seed_station_with_programmes
+    next_programme = testee.next_programme
+    
+    assert_equal(fake_time, testee.last_played_at)
+  end
+  
   def test_serves_the_next_pending_programme_from_the_programmes_queue
     db_cleanup
     setup_mocks('station-id', 'some-id', 'http://www.audio.uri/1.mp3', 'title', 'summary', 'tag-id', 'tag-title')
@@ -110,6 +125,7 @@ class StationTest < Test::Unit::TestCase
 
     assert_equal(recent_programmes.slice(0,6), testee.recent_programmes)
   end
+  
 private
 
   def db_cleanup

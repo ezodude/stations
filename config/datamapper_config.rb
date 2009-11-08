@@ -14,13 +14,13 @@ require 'broadcastable_programme'
 require 'station'
 require 'tracked_listener'
 
-BroadcastableProgramme.auto_migrate! unless BroadcastableProgramme.storage_exists?
-Station.auto_migrate! unless Station.storage_exists?
-TrackedListener.auto_migrate! unless TrackedListener.storage_exists?
+BroadcastableProgramme.auto_upgrade!
+Station.auto_upgrade!
+TrackedListener.auto_upgrade!
 
 require 'podcast'
 require 'tag'
 require 'classification'
-Podcast.auto_migrate! unless Podcast.storage_exists?
-Tag.auto_migrate! unless Tag.storage_exists?
-Classification.auto_migrate! unless Classification.storage_exists?
+Podcast.auto_upgrade!
+Tag.auto_upgrade!
+Classification.auto_upgrade!

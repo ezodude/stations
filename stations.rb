@@ -97,6 +97,7 @@ get '/listeners/:listener_id/stations/:station_id/new_programme.:format' do
   end
 end
 
+# get '/listeners/:listener_id/recent_programmes.:format' do
 get '/listeners/:listener_id/stations/:station_id/recent_programmes.:format' do
   content_type :json
   if station = Station.first(:id => params[:station_id], :tracked_listener_id => params[:listener_id])
