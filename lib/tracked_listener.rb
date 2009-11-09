@@ -7,6 +7,7 @@ class TrackedListener
   timestamps :at
   
   has n, :stations
+  has n, :logged_listens
   
   def self.has_listener_with_station?(listener_id, keyword)
     unless listener = TrackedListener.get(listener_id)
@@ -45,5 +46,32 @@ class TrackedListener
   
   def current_station
     Station.first(:conditions => ['tracked_listener_id = ? and is_current_station = ?', self.id, true])
+  end
+  
+  def log_listen(broadcastable_programme)
+    LoggedListen.create(:tracked_listener => self, :broadcastable_programme => broadcastable_programme)
+  end
+  
+  def recent_programmes
+    logged_listens = LoggedListen.all(:limit => 6, :order => [:created_at.desc])
+    logged_listens_minus_current_listen = logged_listens.slice(1, logged_listens.size - 1)
+    
+    stations_and_programmes =  logged_listens_minus_current_listen.collect do |logged_listen| 
+     [logged_listen.broadcastable_programme.station, logged_listen.broadcastable_programme]
+    end
+    
+    last_station_seen = stations_and_programmes[0][0]
+    programmes, result = [], []
+    stations_and_programmes.each do |station, programme|
+      if last_station_seen == station
+        programmes << programme
+      else
+        result << {'station' => last_station_seen, 'recent_programmes' => programmes}
+        programmes = [programmes]
+        last_station_seen = station
+      end
+    end
+    result << {'station' => last_station_seen, 'recent_programmes' => programmes}
+    result
   end
 end

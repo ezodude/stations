@@ -45,4 +45,10 @@ class BroadcastableProgramme
     {'audio_uri' => prog_audio_uri, 'title' => prog_title, 'summary' => prog_summary, 'tags' => prog_tags, 
       'published_at' => prog_published_at.to_json, 'source_uri' => prog_source_uri}.to_json
   end
+  
+  def ==(other)
+    other.prog_id == prog_id && other.prog_audio_uri == prog_audio_uri && other.prog_title == prog_title && \
+    other.prog_summary == prog_summary && other.prog_tags == prog_tags && other.prog_published_at == prog_published_at && \
+    other.prog_source_uri == prog_source_uri && other.pending_broadcast == pending_broadcast
+  end
 end

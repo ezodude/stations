@@ -44,8 +44,11 @@ class Station
       return nil unless new_tag_id
       seed_station_with_programmes(new_tag_id)
     end
+    
     new_programme = programmes_queue.first
     new_programme.update_attributes(:pending_broadcast => false)
+    tracked_listener.log_listen(new_programme)
+    
     new_programme
   end
   

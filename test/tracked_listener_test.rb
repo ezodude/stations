@@ -84,10 +84,31 @@ class TrackedListenerTest < Test::Unit::TestCase
     assert(testee.save)
     assert_equal(new_station, testee.station_for_keyword('keyword'))
   end
+  
+  def test_retrieves_the_five_recently_played_and_station_indexed_programmes
+    db_cleanup
+    flexmock(UUIDTools::UUID, :random_create => 'station-id')
+    flexmock(ProgrammesCatalogue, :related_tag_for_keyword => { 'id' => 'tag-id', 'title' => 'title' }.to_json)
+    
+    testee = TrackedListener.track_with_station('listener-id', 'keyword')
+    station = testee.stations[0]
+    
+    progs_to_log = (0..5).collect do |i|
+      BroadcastableProgramme.create(:station => station, :prog_id => 'id', :prog_audio_uri => 'audio_uri', :prog_title => 'title', 
+        :prog_summary => 'summary', :prog_tags => 'tag-id::title', :pending_broadcast => false)
+    end
+    testee.logged_listens = progs_to_log.collect{|prog| LoggedListen.create(:tracked_listener => testee, :broadcastable_programme => prog)}
+    
+    expected_progs = progs_to_log.reverse; expected_progs.pop
+    expected_recent_programmes = [ {'station' => station, 'recent_programmes' => expected_progs} ]
+    assert_equal(expected_recent_programmes, testee.recent_programmes)
+  end
 
 private
 
   def db_cleanup
+    LoggedListen.all.each { |i| i.destroy }
+    BroadcastableProgramme.all.each { |i| i.destroy }
     Station.all.each { |i| i.destroy }
     TrackedListener.all.each { |i| i.destroy  }
   end

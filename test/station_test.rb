@@ -59,6 +59,19 @@ class StationTest < Test::Unit::TestCase
     assert(testee.is_current_station)
   end
   
+  def test_logs_the_next_served_programme_as_a_listen
+    db_cleanup
+    setup_mocks('station-id', 'some-id', 'http://www.audio.uri/1.mp3', 'title', 'summary', 'tag-id', 'tag-title')
+    listener = TrackedListener.create(:id => 'listener_id')
+    testee = Station.create(:tracked_keyword => 'some-keyword', :tracked_listener => listener)
+    
+    testee.seed_station_with_programmes
+    assert(listener.logged_listens.size == 0)
+    
+    next_programme = testee.next_programme
+    assert_equal(LoggedListen.new(:tracked_listener => listener, :broadcastable_programme => next_programme), LoggedListen.first)
+  end
+  
   def test_seeds_more_programmes_using_random_programme_tag_from_last_5_broadcasted_programmes
     db_cleanup
     flexmock(UUIDTools::UUID, :random_create => 'station-id')
@@ -116,6 +129,7 @@ class StationTest < Test::Unit::TestCase
 private
 
   def db_cleanup
+    LoggedListen.all.each { |i| i.destroy }
     BroadcastableProgramme.all.each { |i| i.destroy }
     Station.all.each { |i| i.destroy }
     TrackedListener.all.each { |i| i.destroy  }
