@@ -18,7 +18,9 @@ class ProgrammesCatalogueTest < Test::Unit::TestCase
   end
   
   def test_returns_jsonified_list_of_programmes_related_to_a_tag
-    mock_podcast = flexmock(Podcast.new, :id => 'some-id', :audio_uri => 'http://www.audio.uri/1.mp3', :title => 'title', :summary => 'summary')
+    fake_time = Time.now.utc
+    mock_podcast = flexmock(Podcast.new, :id => 'some-id', :audio_uri => 'http://www.audio.uri/1.mp3', :title => 'title', 
+                            :summary => 'summary', :published_at => fake_time, :source_uri => "http://www.audio.uri/source/")
     mock_tag1 = flexmock(Tag.new, :id => 'tag1-id', :title => 'tag1-title')
     mock_tag2 = flexmock(Tag.new, :id => 'tag2-id', :title => 'tag2-title')
     
@@ -26,11 +28,11 @@ class ProgrammesCatalogueTest < Test::Unit::TestCase
     mock_tag1.should_receive(:podcasts).returns([mock_podcast])
     
     flexmock(Tag).should_receive(:get).with('tag1-id').returns(mock_tag1)
-    
+        
     expected_programmes = [
       {
         'id' => 'some-id', 'audio_uri' => 'http://www.audio.uri/1.mp3', 'title' => 'title', 'summary' => 'summary', 
-        'tags' => 'tag1-id::tag1-title,tag2-id::tag2-title'
+        'tags' => 'tag1-id::tag1-title,tag2-id::tag2-title', 'published_at' => fake_time.to_date.to_json, 'source_uri' => "http://www.audio.uri/source/"
       }.to_json
     ].to_json
     

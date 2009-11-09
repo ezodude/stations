@@ -84,7 +84,7 @@ class TrackedListenerTest < Test::Unit::TestCase
     assert(testee.save)
     assert_equal(new_station, testee.station_for_keyword('keyword'))
   end
-  
+
 private
 
   def db_cleanup

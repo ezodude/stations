@@ -9,7 +9,7 @@ class Podcast
   property :title, Text, :nullable => false, :lazy => false
   property :summary, Text, :lazy => false
   property :duration, Integer, :nullable => false
-  property :source_uri, Text, :lazy => false, :lazy => false
+  property :source_uri, Text, :lazy => false
   property :published_at, Time
   property :file_size, Integer
   property :created_at, Time
@@ -46,6 +46,14 @@ class Podcast
   
   def to_json
     flattened_tags = tags.collect{|t| t.to_s}.join(',')
-    {'id' => id, 'audio_uri' => audio_uri, 'title' => title, 'summary' => summary, 'tags' => flattened_tags}.to_json
+    {
+      'id' => id, 
+      'audio_uri' => audio_uri, 
+      'title' => title, 
+      'summary' => summary, 
+      'tags' => flattened_tags, 
+      'published_at' => published_at ? published_at.to_date.to_json : nil, 
+      'source_uri' => source_uri
+    }.to_json
   end
 end

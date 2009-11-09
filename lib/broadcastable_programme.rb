@@ -9,6 +9,8 @@ class BroadcastableProgramme
   property :prog_title, Text, :lazy => false, :nullable => false
   property :prog_summary, Text
   property :prog_tags, Text, :lazy => false, :nullable => false #tag_id::title,tag_id::title
+  property :prog_published_at, Date, :nullable => true
+  property :prog_source_uri, Text, :lazy => false, :nullable => true
   property :pending_broadcast, Boolean, :default => true
   timestamps :at
   
@@ -17,7 +19,9 @@ class BroadcastableProgramme
   def self.build_with(station, jsonified_programme)
     parsed_programme = JSON.parse(jsonified_programme)
     self.new(:station => station, :prog_id => parsed_programme['id'], :prog_audio_uri => parsed_programme['audio_uri'], 
-              :prog_title => parsed_programme['title'], :prog_summary => parsed_programme['summary'], :prog_tags => parsed_programme['tags'])
+              :prog_title => parsed_programme['title'], :prog_summary => parsed_programme['summary'], :prog_tags => parsed_programme['tags'], 
+              :prog_published_at => parsed_programme['published_at'], :prog_source_uri => parsed_programme['source_uri']
+            )
   end
   
   def self.queued_pending_broadcasts_for(station)
@@ -38,6 +42,7 @@ class BroadcastableProgramme
   end
   
   def to_json
-    {'audio_uri' => prog_audio_uri, 'title' => prog_title, 'summary' => prog_summary, 'tags' => prog_tags}.to_json
+    {'audio_uri' => prog_audio_uri, 'title' => prog_title, 'summary' => prog_summary, 'tags' => prog_tags, 
+      'published_at' => prog_published_at.to_json, 'source_uri' => prog_source_uri}.to_json
   end
 end
