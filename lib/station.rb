@@ -10,7 +10,7 @@ class Station
   property :tag_from_previous_collection, String, :length => 200
   property :station_was_started, Boolean, :default => false
   property :is_current_station, Boolean, :default => false
-  property :last_played_at, Time, :nullable => true
+  # property :last_played_at, Time, :nullable => true
   timestamps :at
   
   belongs_to :tracked_listener
@@ -46,7 +46,6 @@ class Station
     end
     new_programme = programmes_queue.first
     new_programme.update_attributes(:pending_broadcast => false)
-    self.update_attributes(:last_played_at => Time.now.utc)
     new_programme
   end
   
