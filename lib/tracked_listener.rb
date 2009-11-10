@@ -52,10 +52,12 @@ class TrackedListener
     LoggedListen.create(:tracked_listener => self, :broadcastable_programme => broadcastable_programme)
   end
   
-  def recent_programmes_indexed_by_station
+  def recent_programmes_indexed_by_station(active_listening=true)
     return [] if LoggedListen.count == 0
+     
     logged_listens = LoggedListen.all(:limit => 6, :order => [:created_at.desc])
-    logged_listens_minus_current_listen = logged_listens.slice(1, logged_listens.size - 1)
+    logged_listens_minus_current_listen = active_listening ? 
+      logged_listens.slice(1, logged_listens.size - 1) : logged_listens.slice(0, logged_listens.size - 1)
     
     stations_and_programmes =  logged_listens_minus_current_listen.collect do |logged_listen| 
      [logged_listen.broadcastable_programme.station, logged_listen.broadcastable_programme]
