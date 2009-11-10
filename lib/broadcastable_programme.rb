@@ -7,7 +7,7 @@ class BroadcastableProgramme
   property :prog_id, String, :length => 200, :nullable => false
   property :prog_audio_uri, Text, :lazy => false, :nullable => false
   property :prog_title, Text, :lazy => false, :nullable => false
-  property :prog_summary, Text
+  property :prog_summary, Text, :lazy => false
   property :prog_tags, Text, :lazy => false, :nullable => false #tag_id::title,tag_id::title
   property :prog_published_at, Date, :nullable => true
   property :prog_source_uri, Text, :lazy => false, :nullable => true

@@ -52,7 +52,8 @@ class TrackedListener
     LoggedListen.create(:tracked_listener => self, :broadcastable_programme => broadcastable_programme)
   end
   
-  def recent_programmes
+  def recent_programmes_indexed_by_station
+    return [] if LoggedListen.count == 0
     logged_listens = LoggedListen.all(:limit => 6, :order => [:created_at.desc])
     logged_listens_minus_current_listen = logged_listens.slice(1, logged_listens.size - 1)
     
@@ -66,12 +67,16 @@ class TrackedListener
       if last_station_seen == station
         programmes << programme
       else
-        result << {'station' => last_station_seen, 'recent_programmes' => programmes}
-        programmes = [programmes]
+        result << {'station' => last_station_seen, 'programmes' => programmes}
+        programmes = [programme]
         last_station_seen = station
       end
     end
-    result << {'station' => last_station_seen, 'recent_programmes' => programmes}
+    result << {'station' => last_station_seen, 'programmes' => programmes}
     result
+  end
+  
+  def to_json
+    {:id => id}.to_json
   end
 end

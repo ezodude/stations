@@ -4,32 +4,11 @@ $:.unshift File.join(File.dirname(__FILE__), "lib/podbase")
 require 'rubygems'
 require 'sinatra'
 
-FAKE_LISTENER_ID = '33dcbcd0-902a-012c-8914-0016cbb691d0'
-FAKE_STATION_ID = 'station123'
-
 configure do
   require "#{File.dirname(__FILE__)}/config/initialise"
 end
 
 helpers do
-  def fake_station
-    created_at = Time.now.utc.rfc822
-    {
-      "id" => FAKE_STATION_ID,
-      "keyword" => "some-interest",
-      "listener_id" => FAKE_LISTENER_ID,
-      "created_at" => created_at
-    }.to_json
-  end
-  
-  def fake_programme
-    {
-      "title" => "The Story",
-      "audio_uri" => "http://cdn.conversationsnetwork.org/ITC.ETech-TimOReilly-2008.03.03.mp3",
-      "themes" => "theme1,theme2,theme3"
-    }.to_json
-  end
-  
   def base_url
     if Sinatra::Application.port == 80
       "http://#{Sinatra::Application.host}/"
@@ -42,13 +21,9 @@ end
 get '/listeners/:listener_id/station.:format' do
   content_type :json
   trial = TrackedListener.has_listener_with_station?(params[:listener_id], params[:keyword])
-  p [:trial, trial]
   
   if trial
     station = TrackedListener.get(params[:listener_id]).station_for_keyword(params[:keyword])
-    p [:station, station]
-    p [:station_to_json, station.to_json]
-    
     station.to_json
   else
     status(404)
@@ -73,9 +48,8 @@ post '/listeners/:listener_id/stations.:format' do
     status(201)
     response['Location'] = "#{base_url}listeners/#{listener.id}/stations/#{listener.station_for_keyword(params[:keyword]).id}"
   rescue Exception => e
-    puts e
     status(412)
-    @msg = 'Could not process this request.'
+    @msg = "Could not process this request. Exception [#{e.message}]"
   end
 end
 
@@ -89,7 +63,7 @@ get '/listeners/:listener_id/stations/:station_id/new_programme.:format' do
       new_programme.to_json
     rescue Exception => e
       status(412)
-      @msg = e.message
+      @msg = "Could not process this request. Exception [#{e.message}]"
     end
   else
     status(404)
@@ -97,20 +71,22 @@ get '/listeners/:listener_id/stations/:station_id/new_programme.:format' do
   end
 end
 
-# get '/listeners/:listener_id/recent_programmes.:format' do
-get '/listeners/:listener_id/stations/:station_id/recent_programmes.:format' do
+get '/listeners/:listener_id/recent_programmes.:format' do
   content_type :json
-  if station = Station.first(:id => params[:station_id], :tracked_listener_id => params[:listener_id])
+  if listener = TrackedListener.first(:id => params[:listener_id])
     begin
-      recent_programmes_jsonified = station.recent_programmes.collect {|recent_programme| recent_programme.to_json }
+      recent_progs = listener.recent_programmes_indexed_by_station
+      recent_programmes_jsonified = recent_progs.collect do |recent_programme| 
+        { 'station' => recent_programme['station'].to_json, 'programmes' => recent_programme['programmes'].collect{|prog|prog.to_json} }.to_json
+      end
       recent_programmes_jsonified.to_json
     rescue Exception => e
       status(412)
-      @msg = e.message
+      @msg = "#{e.backtrace} - #{e.message}"
     end
   else
     status(404)
-    @msg = 'No station matching this station id.'
+    @msg = 'No listener matching this station id.'
   end
 end
 

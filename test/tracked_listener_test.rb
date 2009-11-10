@@ -100,8 +100,8 @@ class TrackedListenerTest < Test::Unit::TestCase
     testee.logged_listens = progs_to_log.collect{|prog| LoggedListen.create(:tracked_listener => testee, :broadcastable_programme => prog)}
     
     expected_progs = progs_to_log.reverse; expected_progs.pop
-    expected_recent_programmes = [ {'station' => station, 'recent_programmes' => expected_progs} ]
-    assert_equal(expected_recent_programmes, testee.recent_programmes)
+    expected_recent_programmes = [ {'station' => station, 'programmes' => expected_progs} ]
+    assert_equal(expected_recent_programmes, testee.recent_programmes_indexed_by_station)
   end
 
 private
