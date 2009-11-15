@@ -10,7 +10,6 @@ class Station
   property :tag_from_previous_collection, String, :length => 200
   property :station_was_started, Boolean, :default => false
   property :is_current_station, Boolean, :default => false
-  # property :last_played_at, Time, :nullable => true
   timestamps :at
   
   belongs_to :tracked_listener
@@ -60,6 +59,9 @@ class Station
     {"id" => self.id, "keyword" => self.tracked_keyword, "listener_id" => self.tracked_listener_id }.to_json
   end
   
+  def ==(other)
+    other.id == id && other.tracked_keyword == tracked_keyword && other.tracked_listener_id == tracked_listener_id
+  end
 private
 
   def calculate_next_tag_id_for_station

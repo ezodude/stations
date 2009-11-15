@@ -75,8 +75,7 @@ get '/listeners/:listener_id/recent_programmes.:format' do
   content_type :json
   if listener = TrackedListener.first(:id => params[:listener_id])
     begin
-      recent_progs = params[:listening_state] == 'inactive' ? \
-          listener.recent_programmes_indexed_by_station(active_listening=false) : listener.recent_programmes_indexed_by_station
+      recent_progs = listener.recent_programmes_indexed_by_station
       recent_programmes_jsonified = recent_progs.collect do |recent_programme| 
         { 'station' => recent_programme['station'].to_json, 'programmes' => recent_programme['programmes'].collect{|prog|prog.to_json} }.to_json
       end

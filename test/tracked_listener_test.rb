@@ -85,7 +85,7 @@ class TrackedListenerTest < Test::Unit::TestCase
     assert_equal(new_station, testee.station_for_keyword('keyword'))
   end
   
-  def test_retrieves_the_five_recently_played_and_station_indexed_programmes_during_active_listening
+  def test_retrieves_the_five_recently_played_and_station_indexed_programmes
     db_cleanup
     flexmock(UUIDTools::UUID, :random_create => 'station-id')
     flexmock(ProgrammesCatalogue, :related_tag_for_keyword => { 'id' => 'tag-id', 'title' => 'title' }.to_json)
@@ -94,38 +94,16 @@ class TrackedListenerTest < Test::Unit::TestCase
     station = testee.stations[0]
     
     progs_to_log = (0..5).collect do |i|
-      BroadcastableProgramme.create(:station => station, :prog_id => 'id', :prog_audio_uri => 'audio_uri', :prog_title => 'title', 
-        :prog_summary => 'summary', :prog_tags => 'tag-id::title', :pending_broadcast => false)
+      BroadcastableProgramme.create(:station => station, :prog_id => "id-#{i}", :prog_audio_uri => "audio_uri_#{i}", :prog_title => "title_#{i}", 
+        :prog_summary => "summary_#{i}", :prog_tags => "tag-id#{i}::title#{i}", :pending_broadcast => false)
     end
     testee.logged_listens = progs_to_log.collect{|prog| LoggedListen.create(:tracked_listener => testee, :broadcastable_programme => prog)}
+    testee.save
     
-    expected_progs = progs_to_log.reverse; expected_progs.pop
+    expected_progs = testee.logged_listens.all(:limit => 5, :order => [:created_at.desc]).collect{|l| l.broadcastable_programme}
+    
     expected_recent_programmes = [ {'station' => station, 'programmes' => expected_progs} ]
-    assert_equal(expected_recent_programmes, testee.recent_programmes_indexed_by_station(active_listening=true))
-  end
-  
-  def test_retrieves_the_five_recently_played_and_station_indexed_programmes_during_inactive_listening
-    db_cleanup
-    flexmock(UUIDTools::UUID, :random_create => 'station-id')
-    flexmock(ProgrammesCatalogue, :related_tag_for_keyword => { 'id' => 'tag-id', 'title' => 'title' }.to_json)
-    
-    testee = TrackedListener.track_with_station('listener-id', 'keyword')
-    station = testee.stations[0]
-    
-    progs_to_log = (0..5).collect do |i|
-      BroadcastableProgramme.create(:station => station, :prog_id => 'id', :prog_audio_uri => 'audio_uri', :prog_title => 'title', 
-        :prog_summary => 'summary', :prog_tags => 'tag-id::title', :pending_broadcast => false)
-    end
-    testee.logged_listens = progs_to_log.collect{|prog| LoggedListen.create(:tracked_listener => testee, :broadcastable_programme => prog)}
-    
-    expected_progs = progs_to_log.reverse; expected_progs.slice(0, 4)
-    expected_recent_programmes = [ {'station' => station, 'programmes' => expected_progs} ]
-    
-    actual = testee.recent_programmes_indexed_by_station(active_listening=false)
-    assert_equal(expected_recent_programmes[0]['station'], actual[0]['station'])
-    assert_equal(5, actual[0]['programmes'].size)
-    assert_equal(expected_progs[0], actual[0]['programmes'][0])
-    assert_equal(expected_progs[4], actual[0]['programmes'][4])
+    assert_equal(expected_recent_programmes, testee.recent_programmes_indexed_by_station)
   end
   
 private

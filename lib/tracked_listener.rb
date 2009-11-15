@@ -52,14 +52,11 @@ class TrackedListener
     LoggedListen.create(:tracked_listener => self, :broadcastable_programme => broadcastable_programme)
   end
   
-  def recent_programmes_indexed_by_station(is_active_listening=true)
+  def recent_programmes_indexed_by_station
     return [] if self.logged_listens.count == 0
      
-    logged_listens = self.logged_listens.all(:limit => 6, :order => [:created_at.desc])
-    filtered_logged_listens = filter_by_listening_state(logged_listens, is_active_listening)
-    return [] if filtered_logged_listens.empty?
-    
-    stations_and_programmes = filtered_logged_listens.collect { |logged_listen| logged_listen.station_to_programme }
+    logged_listens = self.logged_listens.all(:limit => 5, :order => [:created_at.desc])
+    stations_and_programmes = logged_listens.collect { |logged_listen| logged_listen.station_to_programme }
     collate_recent_programmes_indexed_by_stations(stations_and_programmes)
   end
   
@@ -68,16 +65,6 @@ class TrackedListener
   end
 
 private
-  
-  def filter_by_listening_state(logged_listens, is_active_listening)
-    logged_listens_count = logged_listens.size
-    result = if is_active_listening
-            logged_listens_count > 1 ? logged_listens.slice(1, logged_listens_count - 1) : []
-          else
-            logged_listens_count > 1 ? logged_listens.slice(0, logged_listens_count - 1) : logged_listens.slice(0,1)
-          end
-    result
-  end
   
   def collate_recent_programmes_indexed_by_stations(stations_and_programmes)
     last_station_seen = stations_and_programmes[0][0]
