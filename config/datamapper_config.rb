@@ -6,7 +6,7 @@ require 'dm-aggregates'
 require 'dm-validations'
 require 'dm-timestamps'
 
-local_sqlite3_file = "sqlite3://data/#{ENV['RUNNING_CONTEXT'] == 'test' ? "test." : ''}stations.sqlite3"
+local_sqlite3_file = "sqlite3://#{Dir.pwd}/data/#{ENV['RUNNING_CONTEXT'] == 'test' ? "test." : ''}stations.sqlite3"
 
 DataMapper.setup(:default, ENV['DATABASE_URL'] || local_sqlite3_file)
 

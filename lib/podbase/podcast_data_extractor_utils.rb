@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-require 'activesupport'
+require 'active_support'
 
 module SaidFm
   module PodcastDataExtractorUtils

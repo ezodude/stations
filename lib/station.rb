@@ -27,7 +27,7 @@ class Station
     programmes_as_json.each do |programme_as_json|
       BroadcastableProgramme.build_with(self, programme_as_json).save
     end
-    self.update_attributes(:tag_from_previous_collection => seed_tag_id) unless programmes_queue.empty?
+    self.update(:tag_from_previous_collection => seed_tag_id) unless programmes_queue.empty?
   end
   
   def programmes_queue
@@ -35,7 +35,7 @@ class Station
   end
   
   def next_programme
-    self.update_attributes(:station_was_started => true) unless self.station_was_started
+    self.update(:station_was_started => true) unless self.station_was_started
     self.tracked_listener.change_current_station_to(self) 
     
     if programmes_queue.empty?
@@ -45,7 +45,7 @@ class Station
     end
     
     new_programme = programmes_queue.first
-    new_programme.update_attributes(:pending_broadcast => false)
+    new_programme.update(:pending_broadcast => false)
     tracked_listener.log_listen(new_programme)
     
     new_programme

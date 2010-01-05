@@ -10,7 +10,7 @@ do_postgres --version 0.9.12
 extlib --version 0.9.13
 
 json --version 1.1.9
-activesupport --version 2.3.4
+activesupport --version 2.3.5
 feedzirra --version 0.0.19 --source www.gemcutter.org
 uuidtools --version 2.1.1 --source gems.rubyforge.org
 builder --version 2.1.2

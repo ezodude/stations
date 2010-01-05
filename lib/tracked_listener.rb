@@ -36,7 +36,7 @@ class TrackedListener
   end
   
   def change_current_station_to(candidate)
-    candidate.update_attributes(:is_current_station => true) and return if current_station.nil?
+    candidate.update(:is_current_station => true) and return if current_station.nil?
     return if current_station == candidate
     
     if current_station.update_attributes(:is_current_station => false)
